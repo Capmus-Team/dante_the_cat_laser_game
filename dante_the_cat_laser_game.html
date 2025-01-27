@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dante's Laser Chase</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f8ff;
+      overflow: hidden;
+    }
+
+    #gameArea {
+      position: relative;
+      width: 800px;
+      height: 600px;
+      background-color: #e3e3e3;
+      border: 2px solid #555;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .cat {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background-color: darkgray;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    .laser {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: red;
+      border-radius: 50%;
+    }
+
+    #message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: Arial, sans-serif;
+      font-size: 24px;
+      color: #333;
+      display: none;
+    }
+
+    #scoreboard {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div id="gameArea">
+    <div id="scoreboard">Score: 0</div>
+    <div class="cat" id="dante">Dante</div>
+    <div class="laser" id="laser"></div>
+    <div id="message">Dante caught the laser! He gets a treat! 😺</div>
+  </div>
+
+  <script>
+    const gameArea = document.getElementById('gameArea');
+    const dante = document.getElementById('dante');
+    const laser = document.getElementById('laser');
+    const message = document.getElementById('message');
+    const scoreboard = document.getElementById('scoreboard');
+
+    const gameAreaRect = gameArea.getBoundingClientRect();
+    let score = 0;
+    const goal = 5;
+
+    // Position the cat and the laser initially
+    dante.style.top = '275px';
+    dante.style.left = '375px';
+
+    laser.style.top = '100px';
+    laser.style.left = '100px';
+
+    // Move the laser less frequently
+    function moveLaser() {
+      const randomX = Math.random() * (gameAreaRect.width - 20);
+      const randomY = Math.random() * (gameAreaRect.height - 20);
+
+      laser.style.left = `${randomX}px`;
+      laser.style.top = `${randomY}px`;
+    }
+
+    setInterval(moveLaser, 1500);
+
+    // Move Dante the cat with arrow keys
+    document.addEventListener('keydown', (e) => {
+      const catRect = dante.getBoundingClientRect();
+      const step = 20;
+
+      switch (e.key) {
+        case 'ArrowUp':
+          if (catRect.top > gameAreaRect.top + step) {
+            dante.style.top = `${parseInt(dante.style.top) - step}px`;
+          }
+          break;
+        case 'ArrowDown':
+          if (catRect.bottom < gameAreaRect.bottom - step) {
+            dante.style.top = `${parseInt(dante.style.top) + step}px`;
+          }
+          break;
+        case 'ArrowLeft':
+          if (catRect.left > gameAreaRect.left + step) {
+            dante.style.left = `${parseInt(dante.style.left) - step}px`;
+          }
+          break;
+        case 'ArrowRight':
+          if (catRect.right < gameAreaRect.right - step) {
+            dante.style.left = `${parseInt(dante.style.left) + step}px`;
+          }
+          break;
+      }
+
+      checkCatch();
+    });
+
+    // Check if Dante catches the laser
+    function checkCatch() {
+      const catRect = dante.getBoundingClientRect();
+      const laserRect = laser.getBoundingClientRect();
+
+      if (
+        catRect.left < laserRect.right &&
+        catRect.right > laserRect.left &&
+        catRect.top < laserRect.bottom &&
+        catRect.bottom > laserRect.top
+      ) {
+        score++;
+        scoreboard.textContent = `Score: ${score}`;
+
+        if (score >= goal) {
+          message.textContent = 'Dante caught the laser 5 times! He gets a BIG treat! 🎉😺';
+        }
+
+        message.style.display = 'block';
+        laser.style.display = 'none';
+        setTimeout(() => {
+          message.style.display = 'none';
+          laser.style.display = 'block';
+          moveLaser();
+        }, 2000);
+      }
+    }
+  </script>
+</body>
+</html>
